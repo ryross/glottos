@@ -612,4 +612,15 @@ class Glottos
 		return $this->dataRepository->import($app, $path, $this->getDomain(), $this->getMode());
 	}
 
+	/** 
+	 * Export Laravel lang messages
+	 * @param  object $app  
+	 * @param  string $path 
+	 * @return int
+	 */
+	public function export($app, $path = null)
+	{
+		return $this->dataRepository->export($app, $path, $this->getDomain(), $this->getMode());
+	}
+
 }

@@ -378,5 +378,84 @@ class DataRepository implements DataRepositoryInterface {
 		return false;
 	}
 
+
+	/**
+	 * Export Glottos translations to Laravel language files
+	 * 
+	 * @param  object $app    
+	 * @param  string $path   
+	 * @param  string $domain 
+	 * @param  string $mode   
+	 * @return int
+	 */
+	public function export($app, $path, $domain, $mode)
+	{
+		if ( ! $path)
+		{
+			$path = $app['path.base'].'/app/lang';
+		}
+
+		$languages = $this->getEnabledLanguages();
+
+		$exported = 0;
+
+		foreach($languages as $lang)
+		{
+			$lang_dir = $lang->language_id . ($lang->country_id ? '_' . $lang->country_id : '');
+			if ( ! file_exists($path.'/'.$lang_dir) || ! is_dir($path.'/'.$lang_dir))
+			{
+				mkdir($path.'/'.$lang_dir);
+			}
+
+			$exported += $this->exportLocale($lang_dir, $path.'/'.$lang_dir, $domain, $mode);
+		}
+
+		return $exported;
+	}
+
+	/**
+	 * Exort Glottos messages for one locale to Laravel lang files
+	 * 
+	 * @param  string $locale 
+	 * @param  string $path   
+	 * @param  string $domain 
+	 * @param  string $mode   
+	 * @return bool
+	 */
+	private function exportLocale($locale, $path, $domain, $mode)
+	{
+		$exported = 0;
+
+		$locale = Locale::make($locale);
+
+		$locale_translations = $this->translation->getAllForOneLocale($locale);
+
+		$groups = array();
+
+		foreach ($locale_translations as $translation)
+		{
+			if ($translation->primary_message == NULL)
+			{
+				continue;
+			}
+
+			list($group, $key) = explode('.', $translation->key, 2);
+			if ( ! isset($groups[$group]))
+			{
+				$groups[$group] = array();
+			}
+			$groups[$group][$key] = $translation->primary_message;
+			$exported++;
+		}
+
+		foreach ($groups as $group => $values)
+		{
+			$file = $path . '/' . $group . '.php';
+			$output = "<?php\nreturn " . var_export($values, true) . ";\n";
+			file_put_contents($file, $output);
+		}
+
+		return $exported;
+	}
 	
 }

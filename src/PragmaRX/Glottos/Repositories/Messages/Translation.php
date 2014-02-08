@@ -119,30 +119,53 @@ class Translation extends MessageBase implements TranslationInterface {
 
 		$rows = $this->model->getConnection()
 
-							->table('glottos_messages as gm')
+			->table('glottos_messages as gm')
 
-				            ->leftJoin('glottos_translations as gtp', function($join) use ($db, $localePrimary) {
-				            	$join->on('gtp.message_id', '=', 'gm.id')
-				            		->on('gtp.language_id', '=', $db->raw("'".$localePrimary->getLanguage()."'"))
-				            		->on('gtp.country_id', '=', $db->raw("'".$localePrimary->getCountry()."'"));
-				            })
+			->leftJoin('glottos_translations as gtp', function($join) use ($db, $localePrimary) {
+				$join->on('gtp.message_id', '=', 'gm.id')
+					->on('gtp.language_id', '=', $db->raw("'".$localePrimary->getLanguage()."'"))
+					->on('gtp.country_id', '=', $db->raw("'".$localePrimary->getCountry()."'"));
+			})
 
-				            ->leftJoin('glottos_translations as gts', function($join) use ($db, $localeSecondary) {
-				            	$join->on('gts.message_id', '=', 'gm.id')
-				            		->on('gts.language_id', '=', $db->raw("'".$localeSecondary->getLanguage()."'"))
-				            		->on('gts.country_id', '=', $db->raw("'".$localeSecondary->getCountry()."'"));
-				            })
+				->leftJoin('glottos_translations as gts', function($join) use ($db, $localeSecondary) {
+					$join->on('gts.message_id', '=', 'gm.id')
+						->on('gts.language_id', '=', $db->raw("'".$localeSecondary->getLanguage()."'"))
+						->on('gts.country_id', '=', $db->raw("'".$localeSecondary->getCountry()."'"));
+				})
 
-				            ->select( 	 'gm.id as message_id'
-				            			, 'gm.key'
-										, 'gtp.id as primary_id'
-										, 'gtp.translation as primary_message'
-										, 'gts.id as secondary_id'
-										, 'gts.translation as secondary_message'
-									);
+					->select( 	 'gm.id as message_id'
+					, 'gm.key'
+					, 'gtp.id as primary_id'
+					, 'gtp.translation as primary_message'
+					, 'gts.id as secondary_id'
+					, 'gts.translation as secondary_message'
+				);
 
 		return $rows->get();
 	}
+
+	public function getAllForOneLocale(Locale $localePrimary = null) // Locale $primary
+	{
+		$db = $this->model->getConnection();
+
+		$rows = $this->model->getConnection()
+
+			->table('glottos_messages as gm')
+			->leftJoin('glottos_translations as gtp', function($join) use ($db, $localePrimary) {
+				$join->on('gtp.message_id', '=', 'gm.id')
+					->on('gtp.language_id', '=', $db->raw("'".$localePrimary->getLanguage()."'"))
+					->on('gtp.country_id', '=', $db->raw("'".$localePrimary->getCountry()."'"));
+			})
+			->select(
+				'gm.id as message_id'
+				, 'gm.key'
+				, 'gtp.id as primary_id'
+				, 'gtp.translation as primary_message'
+			);
+
+		return $rows->get();
+	}
+
 
 	/**
 	 * Update or create a translation in the data source

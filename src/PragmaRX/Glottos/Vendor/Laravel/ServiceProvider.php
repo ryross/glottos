@@ -21,6 +21,7 @@ use PragmaRX\Glottos\Repositories\Locales\CountryLanguage;
 use PragmaRX\Glottos\Repositories\Cache\Cache;
 
 use PragmaRX\Glottos\Vendor\Laravel\Artisan\ImportCommand;
+use PragmaRX\Glottos\Vendor\Laravel\Artisan\ExportCommand;
 
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 use Illuminate\Foundation\AliasLoader as IlluminateAliasLoader;
@@ -79,8 +80,10 @@ class ServiceProvider extends IlluminateServiceProvider {
 		$this->registerLang();
 
 		$this->registerImportCommand();
+		$this->registerExportCommand();
 
 		$this->commands('glottos.command.import');
+		$this->commands('glottos.command.export');
 	}
 
 	/**
@@ -287,6 +290,18 @@ class ServiceProvider extends IlluminateServiceProvider {
 		});
 	}
 
+	/**
+	 * Register the Export Artisan command
+	 *
+	 * @return void
+	 */	
+	private function registerExportCommand()
+	{
+		$this->app['glottos.command.export'] = $this->app->share(function($app)
+		{
+			return new ExportCommand;
+		});
+	}
 	/**
 	 * Helper function to ease the use of configurations
 	 * 
