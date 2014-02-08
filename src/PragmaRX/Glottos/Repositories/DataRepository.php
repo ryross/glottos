@@ -401,10 +401,12 @@ class DataRepository implements DataRepositoryInterface {
 
 		foreach($languages as $lang)
 		{
-			$lang_dir = $lang->language_id . ($lang->country_id ? '_' . $lang->country_id : '');
-			if ( ! file_exists($path.'/'.$lang_dir) || ! is_dir($path.'/'.$lang_dir))
+			$lang_name = $lang->language_id . ($lang->country_id ? '_' . $lang->country_id : '');
+			$dir = $path.'/'.$lang_name;
+			
+			if ( ! $this->fileSystem->exists($dir) || ! $this->fileSystem->isDirectory($dir))
 			{
-				mkdir($path.'/'.$lang_dir);
+				$this->fileSystem->makeDirectory($dir);
 			}
 
 			$exported += $this->exportLocale($lang_dir, $path.'/'.$lang_dir, $domain, $mode);
@@ -452,7 +454,7 @@ class DataRepository implements DataRepositoryInterface {
 		{
 			$file = $path . '/' . $group . '.php';
 			$output = "<?php\nreturn " . var_export($values, true) . ";\n";
-			file_put_contents($file, $output);
+			$this->fileSystem->put($file, $output);
 		}
 
 		return $exported;
