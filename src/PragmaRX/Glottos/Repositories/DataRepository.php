@@ -434,7 +434,7 @@ class DataRepository implements DataRepositoryInterface {
 
 		foreach ($locale_translations as $translation)
 		{
-			if ($translation->primary_message == NULL)
+			if ($translation->key == NULL || $translation->primary_message == NULL)
 			{
 				continue;
 			}
