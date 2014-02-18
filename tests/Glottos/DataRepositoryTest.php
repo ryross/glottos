@@ -246,15 +246,18 @@ class DataRepositoryTest extends PHPUnit_Framework_TestCase {
 		$this->fileSystem->shouldReceive('exists')->once()->andReturn(false);
 		$this->fileSystem->shouldReceive('makeDirectory')->once()->andReturn(true);
 
-		/*
-		$this->modelTranslationMock->shouldReceive('with')->once()->andReturn($this->modelTranslationMock);
-		$this->modelTranslationMock->shouldReceive('where')->times(3)->andReturn($this->modelTranslationMock);
-		$this->modelTranslationMock->shouldReceive('first')->once()->andReturn($this->translationRecord);
+		$this->modelLanguageCountryMock->shouldReceive('all')->once()->andReturn(array($this->modelLanguageCountryReturnMock));
 
-		$this->config->shouldReceive('get')->with('default_language_id')->andReturn($this->language);
-		$this->config->shouldReceive('get')->with('default_country_id')->andReturn($this->country);
-		$this->config->shouldReceive('get')->with('debug')->andReturn(false);
-		*/
+
+		$lang = m::mock('stdClass');
+		$lang->key = $this->message;
+		$lang->message = $this->translation;
+
+		$this->modelTranslationMock->shouldReceive('getConnection')->times(2)->andReturn($this->modelTranslationMock);
+		$this->modelTranslationMock->shouldReceive('table')->once()->andReturn($this->modelTranslationMock);
+		$this->modelTranslationMock->shouldReceive('leftJoin')->once()->andReturn($this->modelTranslationMock);
+		$this->modelTranslationMock->shouldReceive('select')->times(1)->andReturn($this->modelTranslationMock);
+		$this->modelTranslationMock->shouldReceive('get')->once()->andReturn(array($lang));
 
 		$this->dataRepository->export($this->app, null, $this->domain, $this->mode);
 	}

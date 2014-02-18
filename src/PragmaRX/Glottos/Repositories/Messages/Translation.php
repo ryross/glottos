@@ -159,8 +159,8 @@ class Translation extends MessageBase implements TranslationInterface {
 			->select(
 				'gm.id as message_id'
 				, 'gm.key'
-				, 'gtp.id as primary_id'
-				, 'gtp.translation as primary_message'
+				, 'gtp.id as translation_id'
+				, 'gtp.translation as message'
 			);
 
 		return $rows->get();

@@ -409,7 +409,7 @@ class DataRepository implements DataRepositoryInterface {
 				$this->fileSystem->makeDirectory($dir);
 			}
 
-			$exported += $this->exportLocale($lang_dir, $path.'/'.$lang_dir, $domain, $mode);
+			$exported += $this->exportLocale($lang_name, $dir, $domain, $mode);
 		}
 
 		return $exported;
@@ -436,18 +436,26 @@ class DataRepository implements DataRepositoryInterface {
 
 		foreach ($locale_translations as $translation)
 		{
-			if ($translation->key == NULL || $translation->primary_message == NULL)
+			if ($translation->key == NULL || $translation->message == NULL)
 			{
 				continue;
 			}
 
-			list($group, $key) = explode('.', $translation->key, 2);
-			if ( ! isset($groups[$group]))
+			$parts = explode('.', $translation->key, 2);
+
+			if (count($parts) == 2)
 			{
-				$groups[$group] = array();
+				if ( ! isset($groups[$parts[0]]))
+				{
+					$groups[$parts[0]] = array();
+				}
+				$groups[$parts[0]][$parts[1]] = $translation->message;
+				$exported++;
 			}
-			$groups[$group][$key] = $translation->primary_message;
-			$exported++;
+			else
+			{
+				#skipping translations without keys since we don't know where to put them.
+			}
 		}
 
 		foreach ($groups as $group => $values)
