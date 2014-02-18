@@ -378,5 +378,94 @@ class DataRepository implements DataRepositoryInterface {
 		return false;
 	}
 
+
+	/**
+	 * Export Glottos translations to Laravel language files
+	 * 
+	 * @param  object $app    
+	 * @param  string $path   
+	 * @param  string $domain 
+	 * @param  string $mode   
+	 * @return int
+	 */
+	public function export($app, $path, $domain, $mode)
+	{
+		if ( ! $path)
+		{
+			$path = $app['path.base'].'/app/lang';
+		}
+
+		$languages = $this->getEnabledLanguages();
+
+		$exported = 0;
+
+		foreach($languages as $lang)
+		{
+			$lang_name = $lang->language_id . ($lang->country_id ? '_' . $lang->country_id : '');
+			$dir = $path.'/'.$lang_name;
+			
+			if ( ! $this->fileSystem->exists($dir) || ! $this->fileSystem->isDirectory($dir))
+			{
+				$this->fileSystem->makeDirectory($dir);
+			}
+
+			$exported += $this->exportLocale($lang_name, $dir, $domain, $mode);
+		}
+
+		return $exported;
+	}
+
+	/**
+	 * Exort Glottos messages for one locale to Laravel lang files
+	 * 
+	 * @param  string $locale 
+	 * @param  string $path   
+	 * @param  string $domain 
+	 * @param  string $mode   
+	 * @return bool
+	 */
+	private function exportLocale($locale, $path, $domain, $mode)
+	{
+		$exported = 0;
+
+		$locale = Locale::make($locale);
+
+		$locale_translations = $this->translation->getAllForOneLocale($locale);
+
+		$groups = array();
+
+		foreach ($locale_translations as $translation)
+		{
+			if ($translation->key == NULL || $translation->message == NULL)
+			{
+				continue;
+			}
+
+			$parts = explode('.', $translation->key, 2);
+
+			if (count($parts) == 2)
+			{
+				if ( ! isset($groups[$parts[0]]))
+				{
+					$groups[$parts[0]] = array();
+				}
+				$groups[$parts[0]][$parts[1]] = $translation->message;
+				$exported++;
+			}
+			else
+			{
+				#skipping translations without keys since we don't know where to put them.
+			}
+		}
+
+		foreach ($groups as $group => $values)
+		{
+			$file = $path . '/' . $group . '.php';
+			$output = "<?php\nreturn " . var_export($values, true) . ";\n";
+			$this->fileSystem->put($file, $output);
+		}
+
+		return $exported;
+	}
 	
 }
