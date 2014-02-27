@@ -331,20 +331,33 @@ class DataRepository implements DataRepositoryInterface {
 
 			$group = str_replace('.php', '', basename($file));
 
-			if ($group !== 'validation')
-			{
-				foreach($values as $key => $value)
-				{
-					if ($this->addKey($group, $key, $value, $domain, $locale, $mode))
-					{
-						$imported++;
-					}
-				}
-			}
+			$imported += $this->importLocaleKey($group, $key, $value, $domain, $locale, $mode);
 		}
 
 		return $imported;
 	}
+
+	private function importLocaleKey($group, $key, $value, $domain, $locale, $mode)
+	{
+		$imported = 0;
+
+		if (is_array($value))
+		{
+			foreach ($value as $sub_key => $sub_value)
+			{
+				$imported += $this->importLocaleKey($group, $key .'.'.$sub_key, $sub_value, $domain, $locale, $mode);
+			}
+		}
+		else
+		{
+			if ($this->addKey($group, $key, $value, $domain, $locale, $mode))
+			{
+				$imported++;
+			}
+		}
+		return $imported;
+	}
+
 
 	/**
 	 * Add translation key to data repository
