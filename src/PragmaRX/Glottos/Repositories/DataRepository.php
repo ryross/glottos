@@ -331,7 +331,10 @@ class DataRepository implements DataRepositoryInterface {
 
 			$group = str_replace('.php', '', basename($file));
 
-			$imported += $this->importLocaleKey($group, $key, $value, $domain, $locale, $mode);
+			foreach ($values as $key => $value)
+			{
+				$imported += $this->importLocaleKey($group, $key, $value, $domain, $locale, $mode);
+			}
 		}
 
 		return $imported;
