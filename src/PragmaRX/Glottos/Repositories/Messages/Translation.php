@@ -202,6 +202,29 @@ class Translation extends MessageBase implements TranslationInterface {
 	}
 
 	/**
+	 * Delete a translation in the data source
+	 * 
+	 * @param  string $message           
+	 * @param  string $domain            
+	 * @param  Locale $locale            
+	 * @return object
+	 */
+	public function delete($message, $domain, Locale $locale)
+	{
+		$model = $this->findById($message, $locale);
+
+		if (! $model)
+		{
+			return FALSE;
+		}
+		else
+		{
+			$model->delete();
+			return TRUE;
+		}
+	}
+
+	/**
 	 * Find the next untranslated message based on locales
 	 * 
 	 * @param  Locale $localePrimary   

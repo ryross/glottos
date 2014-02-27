@@ -271,6 +271,19 @@ class DataRepository implements DataRepositoryInterface {
 	}
 
 	/**
+	 * Delete a translation
+	 * 
+	 * @param  string $message           
+	 * @param  Locale $locale            
+	 * @param  string $domain            
+	 * @return object
+	 */
+	public function deleteTranslation($message, Locale $locale, $domain)
+	{
+		$this->translation->delete($message, $domain, $locale);
+	}
+	
+	/**
 	 * Find the next untranslated message
 	 * @param  Locale $primaryLocale   
 	 * @param  Locale $secondaryLocale 

@@ -540,6 +540,22 @@ class Glottos
 	}
 
 	/**
+	 * Delete a translation
+	 * @param  string $message          
+	 * @param  string $locale           
+	 * @param  string $domain           
+	 * @return void                   
+	 */
+	public function deleteTranslation($message, $locale, $domain = null)
+	{
+		$this->dataRepository->deleteTranslation(
+			$message, 
+			$this->makeLocale($locale), 
+			$domain ?: $this->getDomain()
+		);
+	}
+
+	/**
 	 * Find next untranslated message
 	 * 
 	 * @param  mixed $localePrimary   
