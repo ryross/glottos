@@ -454,6 +454,9 @@ class DataRepository implements DataRepositoryInterface {
 				continue;
 			}
 
+			$this->storeKeyInArray();
+
+			/*
 			$parts = explode('.', $translation->key, 2);
 
 			if (count($parts) == 2)
@@ -469,6 +472,7 @@ class DataRepository implements DataRepositoryInterface {
 			{
 				#skipping translations without keys since we don't know where to put them.
 			}
+			 */
 		}
 
 		foreach ($groups as $group => $values)
@@ -481,4 +485,31 @@ class DataRepository implements DataRepositoryInterface {
 		return $exported;
 	}
 	
+
+	private function storeKeyInArray(&$array, $key, $message, $level = 0)
+	{
+		$parts = explode('.', $key);
+
+		if (count($parts) > 2)
+		{
+			$parent_key = array_shift($parts);
+			if (count($parts) > 1)
+			{
+				if ( ! isset($array[$parent]))
+				{
+				//	$array[$parent] = array();
+				}
+			}
+			else
+			{
+				//$array[$key] = $message;
+			}
+
+		}
+		else
+		{
+			$array[$key] = $message;
+		}
+	}
+
 }
