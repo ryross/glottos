@@ -426,7 +426,7 @@ class DataRepository implements DataRepositoryInterface {
 
 		$languages = $this->getEnabledLanguages();
 
-		$exported = 0;
+		$total_exported = 0;
 
 		foreach($languages as $lang)
 		{
@@ -438,10 +438,25 @@ class DataRepository implements DataRepositoryInterface {
 				$this->fileSystem->makeDirectory($dir);
 			}
 
-			$exported += $this->exportLocale($lang_name, $dir, $domain, $mode);
+			$exported = $this->exportLocale($lang_name, $dir, $domain, $mode);
+			foreach ($exported as $group => $export_count)
+			{
+				$total_exported += $export_count;
+			}
+
+			#make sure groups with no translations for this locale are deleted
+			$existing_groups = $this->fileSystem->files($dir);
+			foreach ($existing_groups as $group_file)
+			{
+				$group = basename($group_file, '.php');
+				if ( ! isset($exported[$group]) || $exported[$group] == 0)
+				{
+					$this->fileSystem->delete($group_file);
+				}
+			}
 		}
 
-		return $exported;
+		return $total_exported;
 	}
 
 	/**
@@ -455,12 +470,11 @@ class DataRepository implements DataRepositoryInterface {
 	 */
 	private function exportLocale($locale, $path, $domain, $mode)
 	{
-		$exported = 0;
-
 		$locale = Locale::make($locale);
 
 		$locale_translations = $this->translation->getAllForOneLocale($locale);
 
+		$exported = array();
 		$groups = array();
 
 		foreach ($locale_translations as $translation)
@@ -477,9 +491,10 @@ class DataRepository implements DataRepositoryInterface {
 				if ( ! isset($groups[$parts[0]]))
 				{
 					$groups[$parts[0]] = array();
+					$exported[$parts[0]] = 0;
 				}
 				$groups[$parts[0]][$parts[1]] = $translation->message;
-				$exported++;
+				$exported[$parts[0]]++;
 			}
 			else
 			{
