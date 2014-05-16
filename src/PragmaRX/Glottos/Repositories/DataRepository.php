@@ -512,4 +512,16 @@ class DataRepository implements DataRepositoryInterface {
 		return $exported;
 	}
 	
+
+	/**
+	 * Get all translations for one locale
+	 * 
+	 * @param  $localePrimary   
+	 * @return object|null
+	 */
+	public function getLocaleTranslations($localePrimary = null)
+	{
+		$locale = Locale::make($localePrimary);
+		return $this->translation->getAllForOneLocale($locale);
+	}
 }

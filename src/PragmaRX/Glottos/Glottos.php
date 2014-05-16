@@ -508,6 +508,17 @@ class Glottos
 	{
 		return $this->dataRepository->getTranslations($this->makeLocale($localePrimary), $this->makeLocale($localeSecondary));
 	}
+	/**
+	 * Given locales, get translations
+	 * 
+	 * @param  mixed $localePrimary  
+	 * @return object|null                 
+	 */
+	public function getLocaleTranslations($localePrimary = null)
+	{
+		return $this->dataRepository->getLocaleTranslations($this->makeLocale($localePrimary));
+	}
+
 
 	/**
 	 * Find a Locale locale
@@ -637,6 +648,37 @@ class Glottos
 	public function export($app, $path = null)
 	{
 		return $this->dataRepository->export($app, $path, $this->getDomain(), $this->getMode());
+	}
+
+
+	/**
+	 * Add or update a translation
+	 * 
+	 * @param string $message          
+	 * @param string $translatedMessage
+	 * @param string $domain           
+	 * @param string $locale           
+	 */
+	public function addOrUpdateTranslation($message, $translatedMessage, $domain = null, $locale = null)
+	{
+		$domain = $domain ?: $this->domain;
+
+		$locale = $this->makeLocale($locale, $this->locale);
+
+		$translation = Sentence::makeTranslation($message, $translatedMessage, $domain, $this->mode);
+
+		$translation = $this->findTranslation($translation, $locale);
+
+		if ($translation->translationFound)
+		{
+			return $this->dataRepository->updateOrCreateTranslation($translation->getId(), $translatedMessage, $locale, $domain, $this->mode);
+		}
+		else
+		{
+			return $this->dataRepository->addTranslation($translation, $locale);
+		}
+
+		return $translation;
 	}
 
 }
