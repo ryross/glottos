@@ -126,20 +126,20 @@ class Translation extends MessageBase implements TranslationInterface {
 					->on('gtp.language_id', '=', $db->raw("'".$localePrimary->getLanguage()."'"))
 					->on('gtp.country_id', '=', $db->raw("'".$localePrimary->getCountry()."'"));
 			})
+			->leftJoin('glottos_translations as gts', function($join) use ($db, $localeSecondary) {
+				$join->on('gts.message_id', '=', 'gm.id')
+					->on('gts.language_id', '=', $db->raw("'".$localeSecondary->getLanguage()."'"))
+					->on('gts.country_id', '=', $db->raw("'".$localeSecondary->getCountry()."'"));
+			})
 
-				->leftJoin('glottos_translations as gts', function($join) use ($db, $localeSecondary) {
-					$join->on('gts.message_id', '=', 'gm.id')
-						->on('gts.language_id', '=', $db->raw("'".$localeSecondary->getLanguage()."'"))
-						->on('gts.country_id', '=', $db->raw("'".$localeSecondary->getCountry()."'"));
-				})
-
-					->select( 	 'gm.id as message_id'
-					, 'gm.key'
-					, 'gtp.id as primary_id'
-					, 'gtp.translation as primary_message'
-					, 'gts.id as secondary_id'
-					, 'gts.translation as secondary_message'
-				);
+				->select( 	 'gm.id as message_id'
+				, 'gm.key'
+				, 'gtp.id as primary_id'
+				, 'gtp.translation as primary_message'
+				, 'gts.id as secondary_id'
+				, 'gts.translation as secondary_message'
+			)
+			->orderBy('gm.key', 'asc');
 
 		return $rows->get();
 	}
